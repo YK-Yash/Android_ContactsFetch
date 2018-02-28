@@ -45,8 +45,33 @@ public class MainActivity extends AppCompatActivity {
                 }
             }catch(Exception e){}
         }
+
+            ArrayList<HashMap<String,String>> names = new ArrayList<>();
+            ContentResolver cr2 = getContentResolver();
+            Cursor cur = cr2.query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
+            if (cur.getCount() > 0) {
+                while (cur.moveToNext()) {
+                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                    Cursor cur1 = getContentResolver().query(
+                            ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+                    while (cur1.moveToNext()) {
+                        //to get the contact names
+                        String name1=cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DISPLAY_NAME_PRIMARY));
+                        String email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                        if(email!=null){
+                            HashMap<String,String> map=new HashMap<String,String>();
+                            map.put(name1, email);
+                            names.add(map);
+                        }
+                    }
+                    cur1.close();
+                }
+            }
+
         try {
-            Toast.makeText(getBaseContext(),contactData.get(0)+"", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(),contactData.get(0)+"--"+names.get(1), Toast.LENGTH_LONG).show();
 
         }catch (Exception e){
             Toast.makeText(getBaseContext(),"No contacts", Toast.LENGTH_LONG).show();
